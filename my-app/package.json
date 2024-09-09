@@ -1,0 +1,29 @@
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.1",
+    "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
+    "icons": "^1.0.0",
+    "jose": "^5.8.0",
+    "next": "14.2.7",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^5.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "14.2.7",
+    "postcss": "^8",
+    "prisma": "^5.19.1",
+    "tailwindcss": "^3.4.1"
+  }
+}
