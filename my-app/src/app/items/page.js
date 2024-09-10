@@ -38,7 +38,6 @@ export default function page() {
     HeadPhone: false,
     MobileAccessories: false
   });
-  const [selectedItems, setSelectedItems] = useState([]);
   const header = "CrudApplication";
 
   //////////////////////////////7   /////////////////////////////////////////////////////////7
@@ -76,19 +75,21 @@ export default function page() {
           await axios.post(
             "/api/items",
             {
-              title: Title,
+              title: Title.toLowerCase().trim(),
               quantity: Number(quantity),
 
-              description: Description,
-              category
+              description: Description.toLowerCase().trim(),
+              category: category.toLowerCase().trim()
             },
             {
               headers: { Authorization: `Bearer ${auth.token}` }
             }
           );
+
           setTitle("");
           setDescription("");
           setquantity("");
+
           getFetchUrl();
         } catch (error) {
           console.log(error);
@@ -122,15 +123,14 @@ export default function page() {
   // filter according to category,title, quantity,description
   const handleInputChange = (event) => {
     const query = event.target.value;
-    console.log(query);
     setSearch(query);
     // Filter the data based on the search query
     setFilteredData(
       data.filter((d) => {
         return (
-          d.category.includes(query.toLowerCase()) ||
-          d.title.includes(query.toLowerCase()) ||
-          d.description.includes(query.toLowerCase()) ||
+          d.category.toLowerCase().includes(query.toLowerCase().trim()) ||
+          d.title.toLowerCase().includes(query.toLowerCase().trim()) ||
+          d.description.toLowerCase().includes(query.toLowerCase().trim()) ||
           d.quantity == Number(query)
         );
       })
@@ -251,6 +251,7 @@ export default function page() {
               type="text"
               placeholder="title"
               onChange={(e) => setTitle(e.target.value)}
+              value={Title}
             />
           </label>
           <label htmlFor="">
@@ -294,10 +295,10 @@ export default function page() {
               <option name="tv" value="tv">
                 TV
               </option>
-              <option name="headphone" value="headphone">
+              <option name="HeadPhone" value="HeadPhone">
                 HeadPhone
               </option>
-              <option name="Mobile Accessories" value="mobileaccessories">
+              <option name="MobileAccessories" value="MobileAccessories">
                 Mobile Accessories
               </option>
             </select>
