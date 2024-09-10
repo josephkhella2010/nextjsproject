@@ -1,23 +1,3 @@
-/* "use client";
-
-import { useState } from "react";
-import SignIn from "../components/SignIn";
-import SignUp from "../components/SignUp";
-import React from "react";
-
-export default function page() {
-  const [active, setactive] = useState("");
-  return (
-    <div className="log-wrapper">
-      <div className={`form-container ${active}`}>
-        <SignIn name={active} setname={setactive}></SignIn>
-
-        <SignUp name={active} setname={setactive}></SignUp>
-      </div>
-    </div>
-  );
-}
- */
 "use client";
 import React from "react";
 
