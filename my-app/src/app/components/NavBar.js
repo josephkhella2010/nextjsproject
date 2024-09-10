@@ -4,13 +4,19 @@ import React, { useEffect, useState } from "react";
 import Header from "./Header";
 export default function NavBar() {
   const [active, Setactive] = useState(false);
+  /*   const [hidden, Sethidden] = useState(false);
+   */
   /*  */
   const [isSticky, setIsSticky] = useState(false);
   /*  */
   function handleHamBar() {
     Setactive((c) => !c);
+    /*     Sethidden((c) => !c);
+     */
   }
   let addclass = active ? "active" : "";
+  /*   let addhidden = active ? "show" : "hidden";
+   */
   function handleStick() {
     if (window.scrollY > 70) {
       setIsSticky(true);
