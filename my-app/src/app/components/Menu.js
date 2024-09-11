@@ -13,7 +13,7 @@ export default function Menu() {
   const [isSticky, setIsSticky] = useState(false);
 
   function handleStick() {
-    if (window.scrollY > 70) {
+    if (window.scrollY > 20) {
       setIsSticky(true);
     } else {
       setIsSticky(false);

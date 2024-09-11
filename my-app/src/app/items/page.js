@@ -19,8 +19,10 @@ export default function page() {
 
   ////////////////////////////////////////////////////////////////////////////////
   let [data, setData] = useState([]);
-  let [filteredData, setFilteredData] = useState(data);
-  let [filteredcheckbox, setFilterCheckbox] = useState(filteredData);
+  let [filteredData, setFilteredData] = useState([]);
+  let [filteredcheckbox, setFilterCheckbox] = useState([]);
+  const [boxValue, setBoxValue] = useState([]);
+  const [search, setSearch] = useState("");
 
   const [Title, setTitle] = useState("");
   const [quantity, setquantity] = useState("");
@@ -28,16 +30,6 @@ export default function page() {
   const [Description, setDescription] = useState("");
   const [category, setCategory] = useState("");
 
-  const [search, setSearch] = useState("");
-  // State to keep track of checked items
-  const [filters, setFilters] = useState({
-    mobile: false,
-    laptop: false,
-    ipad: false,
-    tv: false,
-    HeadPhone: false,
-    MobileAccessories: false
-  });
   const header = "CrudApplication";
 
   //////////////////////////////7   /////////////////////////////////////////////////////////7
@@ -48,6 +40,7 @@ export default function page() {
 
     setData(datalist);
     setFilteredData(datalist);
+    setFilterCheckbox(datalist);
   };
   useEffect(() => {
     getFetchUrl();
@@ -79,7 +72,7 @@ export default function page() {
               quantity: Number(quantity),
 
               description: Description.toLowerCase().trim(),
-              category: category.toLowerCase().trim()
+              category: category
             },
             {
               headers: { Authorization: `Bearer ${auth.token}` }
@@ -105,17 +98,26 @@ export default function page() {
   //////////////////////////////////////////////////////////////////////////////////////////////////////7
   //DELETE REQUEST
   async function handleDelete(id) {
-    try {
-      const confirmed = confirm("Do u want to delete it?");
-      if (confirmed) {
-        let response = await axios.delete(`/api/items/${id}`, {
-          headers: { Authorization: `Bearer ${auth.token}` }
-        });
-        getFetchUrl();
+    if (!auth.token) {
+      alert("u should log in for add item");
+      router.push("/login");
+      //window.location.href = "/login";
+    } else {
+      try {
+        const confirmed = confirm("Do u want to delete it?");
+        if (confirmed) {
+          let response = await axios.delete(`/api/items/${id}`, {
+            headers: { Authorization: `Bearer ${auth.token}` }
+          });
+          getFetchUrl();
+        }
+      } catch (error) {
+        console.log(error);
+        return NextResponse.json(
+          { msg: " put fetching error" },
+          { status: 404 }
+        );
       }
-    } catch (error) {
-      console.log(error);
-      return NextResponse.json({ msg: " put fetching error" }, { status: 404 });
     }
   }
 
@@ -127,44 +129,53 @@ export default function page() {
     // Filter the data based on the search query
     setFilteredData(
       data.filter((d) => {
+        console.log(d.category.toLowerCase().trim());
         return (
           d.category.toLowerCase().includes(query.toLowerCase().trim()) ||
-          d.title.toLowerCase().includes(query.toLowerCase().trim()) ||
-          d.description.toLowerCase().includes(query.toLowerCase().trim()) ||
+          d.title.toLowerCase().trim().includes(query.toLowerCase().trim()) ||
+          d.description
+            .toLowerCase()
+            .trim()
+            .includes(query.toLowerCase().trim()) ||
           d.quantity == Number(query)
         );
       })
     );
   };
 
-  ///////////////////////////////////////////////////////////////////////////////////
-  // 2. Handle checkbox changes
-  const handleCheckboxChange = (e) => {
-    console.log(e.target.name);
-    const { name, checked } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: checked
-    }));
-  };
-
-  // 3. Filter the products based on the selected checkboxes
-
-  /**/ filteredcheckbox = filteredData.filter((item) => {
-    if (
-      !filters.mobile &&
-      !filters.laptop &&
-      !filters.ipad &&
-      !filters.tv &&
-      !filters.HeadPhone &&
-      !filters.MobileAccessories
-    ) {
-      return true;
+  ////////////////////////////////////////////////////////
+  // Handle checkbox changes
+  function handlecheckbox(e) {
+    const { value, checked } = e.target;
+    if (checked) {
+      setBoxValue((pre) => [...pre, value.toLowerCase().trim()]);
+    } else {
+      setBoxValue(boxValue.filter((i) => i !== value.toLowerCase().trim()));
     }
-    // Otherwise, return only products in selected categories
+  }
+  ////////////////////////////////////////////////////////////////
+  //////////////////////////////77
 
-    return filters[item.category];
-  });
+  useEffect(() => {
+    if (boxValue.length === 0) {
+      setFilterCheckbox(filteredData);
+    } else {
+      const filtered = filteredData.filter((item) =>
+        boxValue.includes(item.category.toLowerCase().trim())
+      );
+      setFilterCheckbox(filtered);
+    }
+  }, [boxValue, filteredData]);
+
+  // List of categories for checkboxes
+  const categories = [
+    "Mobile",
+    "Ipad",
+    "Laptop",
+    "TV",
+    "HeadPhone",
+    "MobileAccessories"
+  ];
   //////////////////////////////////////////////////////////////
   const [show, setshow] = useState(false);
   function handlefilteredbox() {
@@ -218,23 +229,23 @@ export default function page() {
               onChange={(e) => setCategory(e.target.value)}
             >
               <option name="" value=""></option>
-              <option name="mobile" value="mobile">
+              <option name="Mobile" value="Mobile">
                 Mobile
               </option>
-              <option name="laptop" value="laptop">
+              <option name="Laptop" value="Laptop">
                 Laptop
               </option>
-              <option name="ipad" value="ipad">
+              <option name="Ipad" value="Ipad">
                 Ipad
               </option>
-              <option name="tv" value="tv">
+              <option name="TV" value="TV">
                 TV
               </option>
               <option name="HeadPhone" value="HeadPhone">
                 HeadPhone
               </option>
               <option name="MobileAccessories" value="MobileAccessories">
-                Mobile Accessories
+                MobileAccessories
               </option>
             </select>
           </div>
@@ -260,60 +271,16 @@ export default function page() {
             <BiSolidDownArrow onClick={handlefilteredbox} />
           )}
         </div>
-        <label>
-          <input
-            type="checkbox"
-            name="mobile"
-            checked={filters.mobile}
-            onChange={handleCheckboxChange}
-          />
-          mobile
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="laptop"
-            checked={filters.laptop}
-            onChange={handleCheckboxChange}
-          />
-          laptop
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="tv"
-            checked={filters.tv}
-            onChange={handleCheckboxChange}
-          />
-          tv
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="ipad"
-            checked={filters.ipad}
-            onChange={handleCheckboxChange}
-          />
-          ipad
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="HeadPhone"
-            checked={filters.HeadPhone}
-            onChange={handleCheckboxChange}
-          />
-          HeadPhone
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            name="MobileAccessories"
-            checked={filters.MobileAccessories}
-            onChange={handleCheckboxChange}
-          />
-          Mobile Accessories
-        </label>
+        {categories.map((item) => (
+          <label key={item}>
+            <input
+              type="checkbox"
+              value={item.toLowerCase().trim()}
+              onChange={handlecheckbox}
+            />
+            {item.charAt(0).toUpperCase() + item.slice(1)}
+          </label>
+        ))}
       </div>
 
       <div className="t-body-container">

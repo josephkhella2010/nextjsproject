@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import { useState } from "react";
 import { useAuth } from "@/context/auth";
+import { useRouter } from "next/navigation";
 
 export default function EditForm({
   id,
@@ -12,6 +13,7 @@ export default function EditForm({
   category
 }) {
   const auth = useAuth();
+  const router = useRouter();
 
   const [newTitle, setNewTitle] = useState(title);
   const [newQuantity, setNewQuantity] = useState(quantity);
@@ -20,33 +22,39 @@ export default function EditForm({
 
   async function handleSubmit(e) {
     e.preventDefault();
-    try {
-      if (typeof newQuantity == "string" && isNaN(newQuantity)) {
-        alert("Quantity should be  number");
-        setNewQuantity("");
-        return;
-      } else {
-        const response = await axios.put(
-          `/api/items/${id}`,
-          {
-            title: newTitle,
-            quantity: Number(newQuantity),
-            description: newDescription,
-            category: newCategory
-          },
-          {
-            headers: { Authorization: `Bearer ${auth.token}` }
-          }
-        );
-        const responseOK =
-          response && response.status === 200 && response.statusText === "OK";
+    if (!auth.token) {
+      alert("u should log in for add item");
+      router.push("/login");
+      //window.location.href = "/login";
+    } else {
+      try {
+        if (typeof newQuantity == "string" && isNaN(newQuantity)) {
+          alert("Quantity should be  number");
+          setNewQuantity("");
+          return;
+        } else {
+          const response = await axios.put(
+            `/api/items/${id}`,
+            {
+              title: newTitle,
+              quantity: Number(newQuantity),
+              description: newDescription,
+              category: newCategory
+            },
+            {
+              headers: { Authorization: `Bearer ${auth.token}` }
+            }
+          );
+          const responseOK =
+            response && response.status === 200 && response.statusText === "OK";
 
-        if (responseOK) {
-          window.location.href = "/items";
+          if (responseOK) {
+            window.location.href = "/items";
+          }
         }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
     }
   }
   return (
@@ -92,22 +100,22 @@ export default function EditForm({
               onChange={(e) => setNewCategory(e.target.value)}
             >
               <option name="" value=""></option>
-              <option name="mobile" value="mobile">
+              <option name="mobile" value="Mobile">
                 Mobile
               </option>
-              <option name="laptop" value="laptop">
+              <option name="Laptop" value="Laptop">
                 Laptop
               </option>
-              <option name="ipad" value="ipad">
+              <option name="Ipad" value="Ipad">
                 Ipad
               </option>
-              <option name="tv" value="tv">
+              <option name="TV" value="TV">
                 TV
               </option>
-              <option name="headphone" value="HeadPhone">
+              <option name="HeadPhone" value="HeadPhone">
                 HeadPhone
               </option>
-              <option name="Mobile Accessories" value="Mobile Accessories">
+              <option name="MobileAccessories" value="MobileAccessories">
                 Mobile Accessories
               </option>
             </select>
